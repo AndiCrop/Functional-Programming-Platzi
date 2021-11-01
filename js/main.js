@@ -8,7 +8,7 @@ const attrsToString = (obj = {}) => {
 
   for (let i=0; i<keys.length; i++){
     let attr = keys[i]
-    attrs.push(`${attr}="${obj[attr]}"`)
+    attrs.push(`${attr}="${obj[attr]}"`)  
   }
 
   const string = attrs.join('')
@@ -36,8 +36,10 @@ const tableRow = items => compose(tableRowTag, tableCells)(items)
 
 // función para construir celdas
 const tableCell = tag('td')
-const tableCells = items => items.map(tableCell).join('')
+const tableCells = items => items.map(tableCell).join("")
 
+//icono basura
+const trashIcon = tag({tag: 'i', attrs: {class: 'fas fa-trash-alt'}})('')
 
 // Jquery para capturar info de inputs
 let description = $('#descripcion')
@@ -76,10 +78,10 @@ const add = () => {
   }
 
   list.push(newItem);
-  cleanInputs();
   updateTotals();
+  cleanInputs();
+  renderItems();
   console.log(list);
-
 }
 
 const updateTotals = () =>{
@@ -103,4 +105,30 @@ const cleanInputs = () => {
   calories.val('')
   carbs.val('')
   proteins.val('')
+}
+
+const renderItems = () => {
+  // limpiar body
+  $('tbody').empty()
+
+  list.map((item, index) => {
+    // boton de eliminar
+    const removeButton = tag({
+      tag: 'button',
+      attrs: {
+        class: 'btn btn-outline-danger',
+        onclick: `removeItem(${index})`
+      }
+    })(trashIcon)
+
+    // método append agrega al final
+    $('tbody').append(tableRow([item.description, item.calories, item.carbs, item.proteins, removeButton]))
+  })
+}
+
+const removeItem = (index) => {
+  list.splice(index, 1)
+
+  updateTotals()
+  renderItems()
 }
