@@ -1,6 +1,7 @@
 const compose = (...functions) => data =>
   functions.reduceRight((value, func) => func(value), data)
 
+// función para trabajar con las clases de la etiqueta
 const attrsToString = (obj = {}) => {
   const keys = Object.keys(obj) //obtiene las llaves del objeto
   const attrs = []
@@ -14,8 +15,31 @@ const attrsToString = (obj = {}) => {
   return string
 }
 
-const tag = t => content => `<${t}>${content}</${t}>`
+// Función Compuesta para crear la etiqueta con la clase
+const tagAttrs = obj => (content = "") => 
+  `<${obj.tag}${obj.attrs ? ' ' : ''}${attrsToString(obj.attrs)}>${content}</${obj.tag}>`
 
+// función para crear la etiqueta
+const tag = t => {
+    if (typeof t === 'string') {
+      tagAttrs({tag : t})
+    } else{
+      tagAttrs(t)
+    }
+
+}
+
+//Función para crear filas que contiene las celdas
+const tableRowTag = tag('tr')
+// const tableRow = items => tableRowTag(tableCells(items))
+const tableRow = items => compose(tableRowTag, tableCells)(items)
+
+// función para construir celdas
+const tableCell = tag('td')
+const tableCells = items => items.map(tableCell).join('')
+
+
+// Jquery para capturar info de inputs
 let description = $('#descripcion')
 let calories = $('#calorias')
 let carbs = $('#carboidratos')
@@ -53,8 +77,25 @@ const add = () => {
 
   list.push(newItem);
   cleanInputs();
+  updateTotals();
   console.log(list);
 
+}
+
+const updateTotals = () =>{
+  // crea un contador
+  let calories = 0, carbs=0, protein = 0
+
+  list.map(item =>{
+    calories += item.calories,
+    carbs += item.carbs,
+    protein += item.proteins
+  })
+
+  //setear por Jquery
+  $('#totalCalories').text(calories)
+  $('#totalCarbs').text(carbs)
+  $('#totalProteins').text(protein)
 }
 
 const cleanInputs = () => {
